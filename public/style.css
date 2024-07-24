@@ -1,0 +1,19 @@
+@font-face {
+    font-family: 'ArabicFont';
+    src: url('../fonts/Traditional-Arabic-Regular.ttf') format('truetype');
+    font-family: 'Traditional-Arabic-Regular', sans-serif;
+}
+:root{
+    --bs-font-sans-serif: "Nunito","traditional-arabic-regular",sans-serif;
+}
+.rdt_TableHeadRow:first-child {
+    min-width: 10px;
+}
+input[type="text"], select {
+    width: 100%;
+}
+.float_left.viewAllOrderBtnml20 {
+   
+    display: flex;
+    gap: 20px;
+  }

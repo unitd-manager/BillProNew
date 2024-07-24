@@ -1,0 +1,19 @@
+.tooltip {
+    position: relative;
+  }
+  
+  .tooltip span {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, 5px);
+    padding: 5px 10px;
+    background-color: #333;
+    color: #fff;
+    border-radius: 5px;
+  }
+  
+  .tooltip:hover span {
+    display: block;
+  }

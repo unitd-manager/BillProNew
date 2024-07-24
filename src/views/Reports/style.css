@@ -1,0 +1,14 @@
+/* YourComponent.css */
+
+.table-row {
+    display: flex;
+    flex-wrap: nowrap; /* Ensures the columns stay in the same line */
+    justify-content: space-between; /* Space evenly between the columns */
+  }
+  
+  .table-col {
+    padding: 10px;
+  }
+  
+  
+  
