@@ -28,7 +28,7 @@ const OrderList = () => {
     const [overallSubtotalWithoutDiscount, setOverallSubtotalWithoutDiscount] = useState(0);
     const [overallSubtotalWithDiscount, setOverallSubtotalWithDiscount] = useState(0);
     console.log("sdasd", overallSubtotalWithoutDiscount)
-    console.log("companyId", companyId1)
+    // console.log("companyId", companyId1)
     const [numRows, setNumRows] = useState(0);
     const mopArray = ["Cash", "Credit Card"];
     const discountTypeOptions = ["No discount", "%", "Value"];
@@ -56,7 +56,7 @@ const OrderList = () => {
             try {
                 const res = await api.get('/poss/getOrders');
                 const order = res.data.data[0];
-                console.log('order',order)
+                // console.log('order',order)
                 if (order && order.order_id) {
                     setSessionOrderId(order.order_id);
                     setbillId(order.bill_number);
@@ -91,7 +91,7 @@ const OrderList = () => {
                     let subtotalWithDiscount1 = 0;
                     let total = 0;
                     let total1 = 0;
-
+                    setValueqty(items)
                     items.forEach(item => {
                         totalQty += item.qty;
                         const subtotal = item.qty * item.unit_price;
@@ -136,12 +136,14 @@ const OrderList = () => {
     };
     const [companies, setCompany] = useState('');
 
-    const getOrdersByOrderId = () => {
-        api.post('/poss/getCompanyById', { company_id: companyId1 }).then((res) => {
+    const getOrdersByOrderId = (selectedClients) => {
+        api.post('/poss/getCompanyById', { company_id: selectedClients?.value || companyId1 }).then((res) => {
             setCompany(res.data.data[0]);
-
+            Calculation(orderItems)
         });
     };
+    
+    // UseEffect to fetch initial data based on companyId1
     useEffect(() => {
         getOrdersByOrderId();
     }, [companyId1]);
@@ -191,7 +193,7 @@ const OrderList = () => {
     const startNewOrder = () => {
         api.get('/poss/createNewOrder')
             .then((res) => {
-                console.log('API Response:', res.data); // Log the response to verify structure
+                // console.log('API Response:', res.data); // Log the response to verify structure
                 const newOrderData = res.data;
     
                 if (!newOrderData) {
@@ -222,7 +224,7 @@ const OrderList = () => {
     const StartendNewOrder = () => {
         api.post('/poss/cancelOrderandNew', { order_id: sessionOrderId })
             .then((res) => {
-                console.log('API Response:', res.data); // Log the response to verify structure
+                // console.log('API Response:', res.data); // Log the response to verify structure
 
                 const newOrderData = res.data;
     
@@ -269,7 +271,7 @@ const OrderList = () => {
 
     const addProductToOrderItems = (selectedProduct) => {
         const costPrice = selectedProduct.unit_price * selectedProduct.qty;
-        console.log("q1q1q1q1", costPrice)
+        // console.log("q1q1q1q1", costPrice)
         // Create newItem object with cost_price included
         const newItem = {
             order_id: sessionOrderId,
@@ -307,11 +309,11 @@ const OrderList = () => {
                 message('Unable to delete product.', 'error');
             });
     };
-    console.log("111", sessionOrder)
+    // console.log("111", sessionOrder)
     
     const updateQuantity = (orderItemId, newQty) => {
 
-        setValueqty(newQty)
+        // setValueqty(newQty)
         const updatedItem = orderItems.find(item => item.order_item_id === orderItemId);
         
         if (updatedItem) {
@@ -460,38 +462,58 @@ const OrderList = () => {
                 message('Unable to apply shipping charge.', 'error');
             });
     };
-
+//    console.log('valueQty',valueQty)
     const UpdateInventory = () => {
-        api.post('/finance/getOrdersByIds', { order_id: sessionOrderId })
-          .then((res1) => {
-            const productIds = res1.data.data.map(item => item.record_id);
+        // api.post('/finance/getOrdersByIds', { order_id: sessionOrderId })
+        //   .then((res1) => {
+        //     const productIds = res1.data.data.map(item => item.record_id);
       
-            productIds.forEach(productId => {
-              api.post('/finance/getProductByIds', { record_id: productId })
-                .then((res) => {
-                  const { inventory_id: inventoryId, actual_stock: actualStockValue } = res.data.data[0];
-                  console.log('Product Data:', res.data.data);
-                  const updateActualStock = actualStockValue - valueQty;
+        //     productIds.forEach(productId => {
+        //       api.post('/finance/getProductByIds', { record_id: productId })
+        //         .then((res) => {
+        //           const { inventory_id: inventoryId, actual_stock: actualStockValue } = res.data.data[0];
+        //           console.log('Product Data:', res.data.data);
       
-                  api.post('/poss/updateActualStock', { actual_stock: updateActualStock, inventory_id:inventoryId })
-                    .then(() => {
-                      console.log('Actual stock updated');
-                    })
-                    .catch(() => {
-                      message('Unable to add actual stock.', 'error');
-                    });
-                })
-                .catch(() => {
-                  message('Unable to fetch product details.', 'error');
-                });
+        //         })
+        //         .catch(() => {
+        //           message('Unable to fetch product details.', 'error');
+        //         });
+        //     });
+        //   })
+        //   .catch(() => {
+        //     message('Unable to fetch order details.', 'error');
+        //   });
+
+
+        
+
+        console.log('valueQty',valueQty)
+        // Loop through the `valueQty` array to update actual stock
+        valueQty.forEach((qtyValue) => {
+          // Calculate updated actual stock value
+          const updateQty =  qtyValue.qty
+          const inventoryId = qtyValue.inventory_id
+          const actualStockValue = qtyValue.actual_stock
+          console.log('updateQty',updateQty)
+          const updateActualStock = actualStockValue - updateQty;
+          
+          // Prepare the data for update
+          const updateData = {
+            actual_stock: updateActualStock,
+            inventory_id: inventoryId
+          };
+          console.log('updateData',updateData)
+          // Update the actual stock with the new value
+          api.post('/poss/updateActualStock', updateData)
+            .then(() => {
+              console.log(`Actual stock updated for Inventory ID: ${inventoryId}`);
+            })
+            .catch(() => {
+              message('Unable to update actual stock.', 'error');
             });
-            setTimeout(() => {
-                window.location.reload();
-            }, 300); })
-          .catch(() => {
-            message('Unable to fetch order details.', 'error');
-          });
+        });
       };
+      
       
 
     const saveAmountGiven = () => {
@@ -545,23 +567,36 @@ const OrderList = () => {
             console.error('Error loading client options:', error);
         });
 };
-    
-    const addClient = () => {
-        if (selectedClient) {
-            api.post('/poss/updateClientId', { order_id: sessionOrderId, company_id: selectedClient.value })
-                .then(() => {
-                    message('Client added successfully', 'success');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 300);
-                })
-                .catch(() => {
-                    message('Unable to add client.', 'error');
-                });
-        } else {
-            message('Please select a client.', 'error');
-        }
-    };
+const addClient = () => {
+    if (selectedClient) {
+        api.post('/poss/updateClientId', { order_id: sessionOrderId, company_id: selectedClient.value })
+            .then(() => {
+                message('Client added successfully', 'success');
+                
+                // Fetch updated company details
+                getOrdersByOrderId(selectedClient); // Pass the selected client to fetch the latest data
+            })
+            .catch(() => {
+                message('Unable to add client.', 'error');
+            });
+    } else {
+        message('Please select a client.', 'error');
+    }
+}; 
+    // const addClient = () => {
+    //     if (selectedClient) {
+    //         api.post('/poss/updateClientId', { order_id: sessionOrderId, company_id: selectedClient.value })
+    //             .then(() => {
+    //                 message('Client added successfully', 'success');
+    //                 getOrdersByOrderId(selectedClient)
+    //             })
+    //             .catch(() => {
+    //                 message('Unable to add client.', 'error');
+    //             });
+    //     } else {
+    //         message('Please select a client.', 'error');
+    //     }
+    // };
 
 
     const removeClient = () => {
@@ -915,7 +950,7 @@ const OrderList = () => {
             }),
         }}
     />
-    {companyId && companies && (
+    { companies && (
         <div>
             <p>Company Name: {companies.company_name || 'N/A'}</p>
             <p>Mobile: {companies.phone || 'N/A'}</p>

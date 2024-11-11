@@ -133,7 +133,7 @@ const PurchaseOrderEdit = () => {
         }, 800);
             })
             .catch(() => {
-              message('unable to add quantity.', 'danger');
+              message('unable to add quantityhhhhh.', 'danger');
             });
         } else {
           message('This product is already added', 'danger');

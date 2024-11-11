@@ -209,8 +209,10 @@ const AddPoModal = ({
 
 const insertProduct = (ProductCode, ItemCode) => {
   if (productDetail.title !== '') {
+    if (productDetail.price !== '') {
     productDetail.product_code = ProductCode;
     productDetail.item_code = ItemCode;
+    productDetail.published = '1';
     productDetail.creation_date = creationdatetime;
     productDetail.created_by = loggedInuser.first_name;
     api
@@ -238,6 +240,9 @@ const insertProduct = (ProductCode, ItemCode) => {
       .catch(() => {
         message('Unable to insert product.', 'error');
       });
+    } else {
+      message('Please fill the Price', 'warning');
+    }
     } else {
       message('Please fill the Product Name', 'warning');
     }
@@ -648,6 +653,19 @@ const insertProduct = (ProductCode, ItemCode) => {
                           name="title"
                           onChange={handleNewProductDetails}
                           value={productDetail.title}
+                        />
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Label sm="3">
+                        Price<span className="required"> *</span>
+                      </Label>
+                      <Col sm="8">
+                        <Input
+                          type="text"
+                          name="price"
+                          onChange={handleNewProductDetails}
+                          value={productDetail.price}
                         />
                       </Col>
                     </Row>

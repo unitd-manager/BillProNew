@@ -142,8 +142,8 @@ export default function CustomerDetail({financeDetails,handleInputs,allCountries
                 <Input
                   type="text"
                   onChange={handleInputs}
-                  value={financeDetails && financeDetails.address_po_code}
-                  name="address_po_code"
+                  value={financeDetails && financeDetails.gst_no}
+                  name="gst_no"
                 />
               </FormGroup>
             </Col>

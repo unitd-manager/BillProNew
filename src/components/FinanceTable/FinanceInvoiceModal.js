@@ -4,6 +4,7 @@ import moment from 'moment';
 import { Form, Table } from 'reactstrap';
 //import PdfCreateInvoice from '../PDF/PdfCreateInvoicess';
 import PdfCreateInvoice from '../PDF/PdfCreateInvoice';
+import PdfCreateInvoiceArabic from '../PDF/PdfCreateInvoiceArabic';
 import ComponentCard from '../ComponentCard';
 // import api from '../../constants/api';
 // import message from '../Message';
@@ -35,6 +36,7 @@ console.log('financeDetails',financeDetails)
     { name: 'Invoice Date' },
     { name: 'Amount' },
     { name: 'Print' },
+    { name: '' },
     { name: 'Edit' },
     { name: 'Cancel' },
   ];
@@ -75,6 +77,14 @@ console.log('financeDetails',financeDetails)
                           invoiceId={element.invoice_id}
                           financeDetails={financeDetails}
                         ></PdfCreateInvoice>
+                      </td>
+                      <td>
+                        <PdfCreateInvoiceArabic
+                          createInvoice={createInvoice}
+                          cancelInvoice={cancelInvoice}
+                          invoiceId={element.invoice_id}
+                          financeDetails={financeDetails}
+                        ></PdfCreateInvoiceArabic>
                       </td>
                       <td>
                         <span className='addline'

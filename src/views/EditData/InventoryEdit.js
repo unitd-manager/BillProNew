@@ -13,13 +13,12 @@ import AppContext from '../../context/AppContext';
 import api from '../../constants/api';
 import message from '../../components/Message';
 import ComponentCard from '../../components/ComponentCard';
-import PurchaseOrderLinkedTable from '../../components/Inventory/PurchaseOrderLinkedTable';
+// import PurchaseOrderLinkedTable from '../../components/Inventory/PurchaseOrderLinkedTable';
 import ClientAttachmentPortal from '../../components/ClientTable/ClientAttachmentPortal';
 import ProjectLinkedTable from '../../components/Inventory/ProjectLinkedTable';
 import Tab from '../../components/project/Tab';
-import Tabs from '../../components/project/Tabs';
 import InventoryEditPart from '../../components/Inventory/InventoryEditPart';
-// import InventoryEditTables from '../../components/Inventory/InventoryEditTables';
+import InventoryEditTables from '../../components/Inventory/InventoryEditTables';
 import creationdatetime from '../../constants/creationdatetime';
 
 const Test = () => {
@@ -67,13 +66,10 @@ console.log('Selected language from localStorage:', selectedLanguage);
     { id: '2', name: 'Invoice Linked' },
     { id: '3', name: ' Attachment' },
   ];
-  const tabsArb =  [
-    {id:'1',name:'أوامر الشراء مرتبطة'},
-    {id:'2',name:'الفاتورة مرتبطة'},
-    {id:'3',name:'مرفق'},
-  ];
+
 
   const toggle = (tab) => {
+    console.log('Toggling to tab:', tab);
     if (activeTab !== tab) setActiveTab(tab);
   };
   
@@ -242,39 +238,33 @@ useEffect(() => {
       <ComponentCard title= {arb ? 'المزيد من التفاصيل':'More Details'} >
         <ToastContainer></ToastContainer>
         {/* Nav Tab */}
-        {eng === true &&
+      
         <Tab toggle={toggle} tabs={tabs} />
-        }
-        { arb === true &&
-        <Tabs toggle={toggle} tabsArb={tabsArb} />
-        }
-        <TabContent className="p-4" activeTab={activeTab}>
-          {/* Contact Linked */}
-          <TabPane tabId="1">
-          <PurchaseOrderLinkedTable
-          tabPurchaseOrdersLinked={tabPurchaseOrdersLinked}
-          projectsLinked={projectsLinked}
-          eng={eng}
-          arb={arb}
-          arabic={arabic}
-        />
-          </TabPane>
-          { /* Invoice Linked Portal */}
-           <TabPane tabId="2">
-           <ProjectLinkedTable
-          projectsLinked={projectsLinked}
-          eng={eng}
-          arb={arb}
-          arabic={arabic}
-        />
-          </TabPane>
-          { /* Attachment Portal */ }
-          <TabPane tabId="3">
-          <ClientAttachmentPortal
-          ClientId={id}
-          />
-          </TabPane>
-        </TabContent>
+     
+     
+       <TabContent className="p-4" activeTab={activeTab}>
+  <TabPane tabId="1">
+    <InventoryEditTables
+      tabPurchaseOrdersLinked={tabPurchaseOrdersLinked}
+      projectsLinked={projectsLinked}
+      eng={eng}
+      arb={arb}
+      arabic={arabic}
+    />
+  </TabPane>
+  <TabPane tabId="2">
+    <ProjectLinkedTable
+      projectsLinked={projectsLinked}
+      eng={eng}
+      arb={arb}
+      arabic={arabic}
+    />
+  </TabPane>
+  <TabPane tabId="3">
+    <ClientAttachmentPortal ClientId={id} />
+  </TabPane>
+</TabContent>
+
       </ComponentCard>
       {/* <InventoryEditTables
         tabPurchaseOrdersLinked={tabPurchaseOrdersLinked}

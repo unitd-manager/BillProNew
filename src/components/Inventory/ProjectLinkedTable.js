@@ -6,10 +6,9 @@ import moment from 'moment';
 import ComponentCard from '../ComponentCard';
 
 
-function ProjectLinkedTable({ projectsLinked, eng, arb, }) {
+function ProjectLinkedTable({ projectsLinked, arb, }) {
     ProjectLinkedTable.propTypes = {
     projectsLinked: PropTypes.array,
-    eng: PropTypes.any,
     arb: PropTypes.any,
   };
 
@@ -35,14 +34,11 @@ function ProjectLinkedTable({ projectsLinked, eng, arb, }) {
                   <tr>
                       <td>{element.order_id}</td>
                     <td>
-                      <Link to={`/FinancetEdit/${element.order_id}`}>{eng ===true && element.invoice_code}
-                        { arb === true && element.invoice_code} </Link>
+                      <Link to={`/FinancetEdit/${element.order_id}`}>  {element.invoice_code} </Link>
                     </td>
                     <td>{moment(element.invoice_date).format('DD-MM-YYYY')}</td>
-                    <td>{eng ===true && element.qty}
-                        { arb === true && element.qty}</td>
-                        <td>{eng ===true && element.invoice_amount}
-                        { arb === true && element.invoice_amount}</td>
+                    <td>{element.qty}</td>
+                        <td>{element.invoice_amount}</td>
                   </tr>
                 );
               })}

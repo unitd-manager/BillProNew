@@ -375,13 +375,13 @@ const Test = () => {
             </Col>
             <Col className="d-flex" style={{ justifyContent: 'flex-end' }} xl={3} sm={12}>
             <>
-            <Col>
+            {/* <Col>
               <Link to="/ProductDetails">
                 <Button color="primary" className="shadow-none">
                   Add New
                 </Button>
               </Link>
-            </Col>
+            </Col> */}
             {/* <Col>
               <a href="http://43.228.126.245/pyramidapi/storage/excelsheets/Product.xlsx" download>
                 <Button color="primary" className="shadow-none">

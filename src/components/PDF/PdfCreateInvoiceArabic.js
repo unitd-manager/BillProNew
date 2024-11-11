@@ -212,7 +212,7 @@ const MyPdfDocument = ({ createInvoice, invoiceItems, gTotal, gstTotal, Total })
   const productItems = [
     [
       { text: 'Sn',  },
-      { text: 'Description                                                                                                            وصف', },
+      { text: 'item_title                                                                                                            عنوان العنصر', },
       { text: 'Uom           أوم', },
       { text: 'Qty          كمية', },
       { text: 'Price                             سعر',  },
@@ -220,7 +220,7 @@ const MyPdfDocument = ({ createInvoice, invoiceItems, gTotal, gstTotal, Total })
     ],
     ...invoiceItems.map((element, index) => [
       { text: `${index + 1}`,border: [false, false, false, true],width:'10%'},
-      { text: `${element.description ? element.description : ''}`, border: [false, false, false, true],width:'40%'},
+      { text: `${element.item_title ? element.item_title : ''}`, border: [false, false, false, true],width:'40%'},
       { text: `${element.unit ? element.unit : ''}`, border: [false, false, false, true],width:'10%' },
       { text: `${element.qty ? element.qty : ''}`, border: [false, false, false, true],width:'10%'  },
       { text: `${element.unit_price.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, border: [false, false, false, true], width: '10%' },
@@ -239,11 +239,13 @@ const MyPdfDocument = ({ createInvoice, invoiceItems, gTotal, gstTotal, Total })
         <View style={styles.addressContainer}>
           {/* Left-aligned section */}
           <View style={styles.addressSection}>
-            <Text style={styles.Addresss}>Company Address</Text>
-            <Text style={styles.Addresss}>{createInvoice.cust_address1}</Text>
-            <Text style={styles.Addresss}>{createInvoice.cust_address2}</Text>
-            <Text style={styles.Addresss}>{createInvoice.cust_address_country}</Text>
-            <Text style={styles.Addresss}>{createInvoice.cust_address_po_code}</Text>
+            <Text style={styles.Addresss}>{createInvoice.company_name}</Text>
+            <Text style={styles.Addresss}>{createInvoice.company_address_flat}</Text>
+            <Text style={styles.Addresss}>{createInvoice.company_address_street}</Text>
+            <Text style={styles.Addresss}>{createInvoice.email}</Text>
+            <Text style={styles.Addresss}>{createInvoice.company_phone}</Text>
+            <Text style={styles.Addresss}>{createInvoice.address_country}</Text>
+            <Text style={styles.Addresss}>{createInvoice.gst_no}</Text>
           </View>
 
           {/* Right-aligned section */}
@@ -252,28 +254,28 @@ const MyPdfDocument = ({ createInvoice, invoiceItems, gTotal, gstTotal, Total })
             <Text style={styles.Label}>{createInvoice.invoice_code}</Text>
             <Text style={styles.LabelValue}>Date :</Text>
             <Text  style={styles.Label}>{createInvoice.invoice_date}</Text>
-            <Text  style={styles.LabelValue} >Code :</Text>
+            {/* <Text  style={styles.LabelValue} >Code :</Text>
             <Text  style={styles.Label}>{createInvoice.code}</Text>
             <Text  style={styles.LabelValue} >SO Ref Number :</Text>
             <Text style={styles.Label}>{createInvoice.so_ref_no}</Text>
             <Text  style={styles.LabelValue}>PO Number :</Text>
-            <Text  style={styles.Label}>{createInvoice.po_number}</Text>
+            <Text  style={styles.Label}>{createInvoice.po_number}</Text> */}
           </View>
         </View>
-        <View >
+        {/* <View >
             <Text style={styles.LabelValue1}>ATTN:</Text>
             <Text style={styles.LabelValue1}>Dear Sir,</Text>
             <Text style={styles.LabelValue1}>Site Name :{createInvoice.title}</Text>
             {/* <Text style={styles.Label1}>{createInvoice.title}</Text> */}
-            <Text style={styles.LabelValue1}>Site Code :{createInvoice.site_code} </Text>
+            {/* <Text style={styles.LabelValue1}>Site Code :{createInvoice.site_code} </Text> */}
             {/* <Text  style={styles.Label1}>{createInvoice.site_code}</Text> */}
-            <Text  style={styles.LabelValue1} >Reference :{createInvoice.reference}</Text>
+            {/* <Text  style={styles.LabelValue1} >Reference :{createInvoice.reference}</Text> */}
             {/* <Text  style={styles.Label1}>{createInvoice.reference}</Text> */}
-            <Text  style={styles.LabelValue1} >Project Reference :{createInvoice.project_reference}</Text>
+            {/* <Text  style={styles.LabelValue1} >Project Reference :{createInvoice.project_reference}</Text> */}
             {/* <Text style={styles.Label1}>{createInvoice.project_reference}</Text> */}
-            <Text  style={styles.LabelValue1}>Project Location : {createInvoice.project_location}</Text>
+            {/* <Text  style={styles.LabelValue1}>Project Location : {createInvoice.project_location}</Text> */}
             {/* <Text  style={styles.Label1}>{createInvoice.project_location}</Text> */}
-          </View>
+          {/* </View> */}
           
           <View style={styles.table}>
   {/* Render the header row with the new tableHeaderCell style */}
@@ -362,10 +364,13 @@ PdfCreateInvoice.propTypes = {
 
 MyPdfDocument.propTypes = {
   createInvoice: PropTypes.shape({
-    cust_address1: PropTypes.string.isRequired,
-    cust_address2: PropTypes.string.isRequired,
-    cust_address_country: PropTypes.string.isRequired,
-    cust_address_po_code: PropTypes.string.isRequired,
+    company_name: PropTypes.string.isRequired,
+    company_address_flat: PropTypes.string.isRequired,
+    company_address_street: PropTypes.string.isRequired,
+    email: PropTypes.string.isRequired,
+    company_phone: PropTypes.string.isRequired,
+    address_country: PropTypes.string.isRequired,
+    gst_no: PropTypes.string.isRequired,
     invoice_code: PropTypes.string.isRequired,
     invoice_date: PropTypes.string.isRequired,
     code: PropTypes.string.isRequired,

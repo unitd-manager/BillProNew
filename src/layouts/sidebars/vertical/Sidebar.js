@@ -57,7 +57,7 @@ const Sidebar = () => {
                   let hasPermit = false;
                   let count = 0;
                   for (let x= 0; x < navi.data.length; x++) {
-                    if (permissions.includes(`${navi.data[x].section_title}-list`)) {
+                    if (permissions?.includes(`${navi.data[x].section_title}-list`)) {
                       count = count + 1;
                       hasPermit = true;
                     }

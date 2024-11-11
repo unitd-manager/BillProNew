@@ -1,115 +1,172 @@
-import React, { useState } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import pdfMake from 'pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import { Button } from 'reactstrap';
 import moment from 'moment';
-import PropTypes from 'prop-types';
+//import Converter from 'number-to-words';
 import api from '../../constants/api';
-import PdfFooter from './PdfFooter';
-import PdfHeader from './PdfHeader';
 import message from '../Message';
+import PdfFooter from './PdfFooter';
+import PdfHeader2 from './PdfHeader2';
+//import PdfHeader2 from './PdfHeader2';
 
-const PdfCreateInvoice = ({invoiceId,orderitemDetails}) => {
+const PdfCreateInvoice = ({ invoiceId, financeDetails }) => {
   PdfCreateInvoice.propTypes = {
     invoiceId: PropTypes.any,
-    orderitemDetails: PropTypes.any
-  }
-console.log('invoiceId',invoiceId);
-  const [hfdata, setHeaderFooterData] = React.useState();
-  const [invoiceDetails, setInvoiceDetails] = useState({});
-
-  const getInvoiceById = () => {
-    api
-      .post('/invoice/getInvoiceByInvoiceId', { invoice_id: invoiceId })
-      .then((res) => {
-        setInvoiceDetails(res.data.data);
-      })
-      .catch(() => {
-        message('Invoice Data Not Found', 'info');
-      });
+    financeDetails: PropTypes.any,
   };
+  const [hfdata, setHeaderFooterData] = React.useState();
+  //const [hfdata1, setHeaderFooterData1] = React.useState();
+  const [cancelInvoice, setCancelInvoice] = React.useState([]);
+  const [createInvoice, setCreateInvoice] = React.useState();
+  const [gTotal, setGtotal] = React.useState(0);
+
+  //const [gstTotal, setGstTotal] = React.useState(0);
+  //const [Total, setTotal] = React.useState(0);
 
   React.useEffect(() => {
     api.get('/setting/getSettingsForCompany').then((res) => {
       setHeaderFooterData(res.data.data);
     });
   }, []);
+  // React.useEffect(() => {
+  //   api.get('/setting/getSettingsForCompany1').then((res) => {
+  //     setHeaderFooterData1(res.data.data);
+  //   });
+  // }, []);
 
+  console.log('companyInvoice', financeDetails);
   const findCompany = (key) => {
-    const filteredResult = hfdata.find((e) => e.key_text === key);
-    return filteredResult.value;
+    console.log('key', key);
+    if (financeDetails.company_invoice === 'Company Invoice 2') {
+      if (hfdata && hfdata.length > 0) {
+        const filteredResult = hfdata.find((e) => e.key_text === key);
+        return filteredResult ? filteredResult.value : '';
+      }
+    } else {
+      const filteredResult = hfdata.find((e) => e.key_text === key);
+      return filteredResult ? filteredResult.value : '';
+    }
+    return '';
   };
-  // const subtotal = orderitemDetails.reduce((total, element) => total + parseFloat(element.total_cost || 0), 0);
-  // const getInvoiceItemById = () => {
-  //   api
-  //     .post('/invoice/getInvoiceItemByInvoiceId', { invoice_id: invoiceId })
-  //     .then((res) => {
-  //       setCompany(res.data.data);
-  //       //grand total
-    
-  //     })
-  //     .catch(() => {
-  //       message('Invoice Data Not Found', 'info');
-  //     });
-  // };
 
+  // Gettind data from Job By Id
+  const getInvoiceById = () => {
+    api
+      .post('/invoice/getInvoiceByInvoiceId', { invoice_id: invoiceId })
+      .then((res) => {
+        setCreateInvoice(res.data.data);
+      })
+      .catch(() => {
+        message('Invoice Data Not Found', 'info');
+      });
+  };
+  const calculateTotal = () => {
+    const grandTotal = cancelInvoice.reduce((acc, element) => acc + element.amount, 0);
+    const gstValue = createInvoice.gst_value || 0;
+    const total = grandTotal + gstValue;
+    return total;
+  };
+  //console.log('2', gstTotal);
+  const getInvoiceItemById = () => {
+    api
+      .post('/invoice/getInvoiceItemByInvoiceId', { invoice_id: invoiceId })
+      .then((res) => {
+        setCancelInvoice(res.data.data);
+        let grandTotal = 0;
+        res.data.data.forEach((elem) => {
+          grandTotal += elem.amount;
+        });
+
+        setGtotal(grandTotal);
+         })
+      .catch(() => {
+        message('Invoice Data Not Found', 'info');
+      });
+  };
   React.useEffect(() => {
- getInvoiceById();
-
+    getInvoiceItemById();
+    getInvoiceById();
   }, []);
 
   const GetPdf = () => {
     const productItems = [
       [
         {
-          text: 'Title',
+          text: 'Sn',
           style: 'tableHead',
+        },
+        {
+          text: 'Description',
+          style: 'tableHead',
+          alignment: 'center',
+        },
+        {
+          text: 'Uom',
+          style: 'tableHead',
+          alignment: 'center',
+        },
+        {
+          text: 'Qty',
+          style: 'tableHead',
+          alignment: 'center',
         },
         {
           text: 'Unit Price',
           style: 'tableHead',
+          alignment: 'right',
         },
         {
-          text: 'Invoice Quantity',
+          text: 'Total Amount',
           style: 'tableHead',
+          alignment: 'right',
         },
-        {
-          text: 'Total',
-          style: 'tableHead',
-        },
-       
       ],
     ];
-    orderitemDetails.forEach((element) => {
+    cancelInvoice.forEach((element, index) => {
       productItems.push([
+        {
+          text: `${index + 1}`,
+          style: 'tableBody',
+          border: [false, false, false, true],
+        },
         {
           text: `${element.item_title ? element.item_title : ''}`,
           border: [false, false, false, true],
           style: 'tableBody',
+          alignment: 'center',
         },
         {
-          text: `${element.unit_price ? element.unit_price : ''}`,
+          text: `${element.unit ? element.unit : ''}`,
           border: [false, false, false, true],
           style: 'tableBody',
+          alignment: 'center',
         },
         {
-          text: `${element.invoice_qty ? element.invoice_qty : ''}`,
+          text: `${element.qty ? element.qty : ''}`,
           border: [false, false, false, true],
           style: 'tableBody',
+          alignment: 'center',
         },
         {
-          text: `${element.total_cost ? element.total_cost : ''}`,
+          text: `${element.unit_price.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`,
           border: [false, false, false, true],
-          style: 'tableBody',
+          margin: [0, 5, 0, 5],
+          style: 'tableBody1',
         },
-       
-     
+        {
+          text: `${element.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`,
+          border: [false, false, false, true],
+          margin: [0, 5, 0, 5],
+          style: 'tableBody1',
+        },
       ]);
     });
 
     const dd = {
       pageSize: 'A4',
-      header: PdfHeader({ findCompany }),
+      header: PdfHeader2({ findCompany }),
       pageMargins: [40, 150, 40, 80],
       footer: PdfFooter,
       content: [
@@ -168,32 +225,85 @@ console.log('invoiceId',invoiceId);
 
         {
           columns: [
-      
+            {
+              stack: [
+                {
+                  text: `To :${createInvoice.company_name ? createInvoice.company_name : ''}\n${
+                    createInvoice.company_address_flat ? createInvoice.company_address_flat : ''
+                  }\n ${createInvoice.company_address_street ? createInvoice.company_address_street : ''}\n${
+                    createInvoice.email ? createInvoice.email : ''
+                  }\n${
+                    createInvoice.company_phone ? createInvoice.company_phone : ''
+                  }
+                  \n${
+                    createInvoice.address_country ? createInvoice.address_country : ''
+                  }n${
+                    createInvoice.gst_no ? createInvoice.gst_no : ''
+                  }`,
+                  style: ['textSize'],
+                  margin: [0, 0, 0, 0],
+                },
+                '\n',
+              ],
+            },
             {
               stack: [
                 {
                   text: ` Invoice No:${
-                    invoiceDetails.invoice_code ? invoiceDetails.invoice_code : ''
+                    createInvoice.invoice_code ? createInvoice.invoice_code : ''
                   } `,
                   style: ['textSize'],
-                  margin: [20, 0, 0, 0],
+                  margin: [100, 0, 0, 0],
                 },
                 {
                   text: ` Date :${moment(
-                    invoiceDetails.invoice_date ? invoiceDetails.invoice_date : '',
+                    createInvoice.invoice_date ? createInvoice.invoice_date : '',
                   ).format('DD-MM-YYYY')}  `,
                   style: ['textSize'],
-                  margin: [20, 0, 0, 0],
+                  margin: [100, 0, 0, 0],
                 },
-            
-              
-                  '\n',
+                // {
+                //   text: `Code :${createInvoice.code ? createInvoice.code : ''} `,
+                //   style: ['textSize'],
+                //   margin: [100, 0, 0, 0],
+                // },
+                // {
+                //   text: `SO Ref Number :${createInvoice.so_ref_no ? createInvoice.so_ref_no : ''} `,
+                //   style: ['textSize'],
+                //   margin: [100, 0, 0, 0],
+                // },
+                // {
+                //   text: ` PO Number :${createInvoice.po_number ? createInvoice.po_number : ''} `,
+                //   style: ['textSize'],
+                //   margin: [100, 0, 0, 0],
+                // },
+                '\n',
               ],
             },
           ],
         },
         '\n',
 
+        {
+          // columns: [
+          //   {
+          //     text: `ATTN :\n Dear Sir,\n Site Name : ${
+          //       createInvoice.title ? createInvoice.title : ''
+          //     } \n Site Code : ${
+          //       createInvoice.site_code ? createInvoice.site_code : ''
+          //     }\n Reference :  ${
+          //       createInvoice.reference ? createInvoice.reference : ''
+          //     }\n Project Reference :${
+          //       createInvoice.project_reference ? createInvoice.project_reference : ''
+          //     } \n Project Location :${
+          //       createInvoice.project_location ? createInvoice.project_location : ''
+          //     } `,
+          //     style: 'textSize',
+          //     bold: true,
+          //   },
+          // ],
+        },
+        '\n',
 
         {
           layout: {
@@ -234,35 +344,54 @@ console.log('invoiceId',invoiceId);
           },
           table: {
             headerRows: 1,
-            widths: [100, 100, 150, 100 ],
+            widths: [20, 90, '*', '*', 50, 70],
 
             body: productItems,
           },
-       
         },
+        '\n\n',
         {
-            columns: [
-              {
-                text: ``,
-                alignment: 'left',
-                style: ['invoiceAdd', 'textSize'],
-              },
-              // {
-              //   stack: [
-                  
-              //       {
-              //           text: `SubTotal $ : ${subtotal.toLocaleString('en-IN', {
-              //             minimumFractionDigits: 2,
-              //           })}`,
-              //           style: ['textSize'],
-              //           margin: [145, 0, 0, 0],
-              //         },
-              //   ],
-              // },
-            ],
-          },
-          '\n',
-     
+          columns: [
+            {
+              text: ``,
+              alignment: 'left',
+              style: ['invoiceAdd', 'textSize'],
+            },
+            {
+              stack: [
+                {
+                  text: `SubTotal Rs : ${gTotal.toLocaleString('en-IN', {
+                    minimumFractionDigits: 2,
+                  })}`,
+                  style: ['textSize1'],
+                  margin: [145, 0, 0, 0],
+                },
+                '\n',
+                {
+                  text: `         Discount : ${createInvoice.discount ? createInvoice.discount : ''}`,
+                  style: ['textSize1'],
+                  margin: [145, 0, 0, 0],
+                },
+                '\n',
+                {
+                  text: `               VAT :  ${createInvoice.gst_value ? createInvoice.gst_value : ''}`,
+                  style: ['textSize1'],
+                  margin: [145, 0, 0, 0],
+                },
+                '\n',
+                {
+                  text: `         Total Rs : ${calculateTotal().toLocaleString('en-IN', { minimumFractionDigits: 2 })}`,
+                  style: ['textSize1'],
+                  margin: [145, 0, 0, 0],
+                },
+              ],
+            },
+          ],
+        },
+        '\n',
+        //{ text: `Total $ :${Converter.toWords(Total)}` },
+        '\n',
+
         {
           text: 'Terms and conditions : \n\n 1.The above rates are in Singapore Dollars. \n\n 2. Payment Terms 30 days from the date of Invoice \n\n  3.Payment should be made in favor of " CUBOSALE ENGINEERING PTE LTD " \n\n 4.Any discrepancies please write to us within 3 days from the date of invoice  \n\n\n 5. For Account transfer \n\n \n\n',
           style: 'textSize',
@@ -293,6 +422,11 @@ console.log('invoiceId',invoiceId);
         },
         textSize: {
           fontSize: 10,
+          // alignment: 'right'
+        },
+        textSize1: {
+          fontSize: 10,
+          alignment: 'right'
         },
         notesTitle: {
           bold: true,
@@ -323,12 +457,6 @@ console.log('invoiceId',invoiceId);
           alignment: 'center',
           fontSize: 10,
         },
-        tableBody3: {
-          border: [false, false, false, true],
-          margin: [15, 5, 0, 5],
-          alignment: 'center',
-          fontSize: 10,
-        },
       },
       defaultStyle: {
         columnGap: 20,
@@ -341,7 +469,7 @@ console.log('invoiceId',invoiceId);
   return (
     <>
       <Button type="button" className="btn btn-dark mr-2" onClick={GetPdf}>
-        Print Pdf
+        Print Invoice
       </Button>
     </>
   );
